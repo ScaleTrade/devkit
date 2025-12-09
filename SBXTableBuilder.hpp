@@ -77,6 +77,10 @@ public:
         _order_by = {column, order};
     }
 
+    void SetTotalData(const JSONArray& total_data) {
+        _total_data = total_data;
+    }
+
     void EnableExportButton(const bool& enabled = true) {
         _show_export_button = enabled;
     }
@@ -93,10 +97,6 @@ public:
         _show_total = enabled;
     }
 
-    void EnableSummary(const bool& enabled = true) {
-        _show_summary = enabled;
-    }
-
     [[nodiscard]] JSONObject CreateTableProps() const {
         JSONObject structure;
         for (const auto& [key, value] : _columns) {
@@ -111,10 +111,13 @@ public:
             {"showRefreshBtn", _show_refresh_button},
             {"showBookmarksBtn", _show_bookmarks_button},
             {"showTotal", _show_total},
-            {"showSummary", _show_summary},
             {"showExportBtn", _show_export_button},
             {"structure", structure}
         };
+
+        if (!_total_data.empty()) {
+            table_props["totalData"] = _total_data;
+        }
 
         return table_props;
     }
@@ -124,11 +127,11 @@ private:
     std::string _id_column;
     std::map<std::string, JSONValue> _columns;
     JSONArray _data;
+    JSONArray _total_data;
     std::vector <std::string> _order_by = {"id", "DESC"};
     bool _show_refresh_button = true;
     bool _show_bookmarks_button = true;
     bool _show_export_button = true;
     bool _show_total = false;
-    bool _show_summary = false;
 };
 
