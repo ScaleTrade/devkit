@@ -911,7 +911,7 @@ struct ServerLog {
 };
 
 struct CServerInterface {
-        virtual int TickSet(TickInfo& tick); //set quotes tick
+    virtual int TickSet(TickInfo& tick); //set quotes tick
     virtual int LogsOut(const std::string& type, const std::string& message);  //send logs to console
     virtual int GetLogs(time_t from, time_t to, const std::string &type, const std::string &filter, std::vector<ServerLog>* logs);  //get logs
     static int GetApiVersion() { return PLUGIN_SERVER_API; }
@@ -983,7 +983,6 @@ struct CServerInterface {
     virtual int SetCandles(const std::string& symbol, const std::vector<CandleRecord>& candles);
     virtual int DeleteCandlesAll(const std::string& symbol);
     virtual int DeleteCandlesPeriod(const std::string& symbol, time_t from, time_t to);
-
 
     //+------------------------------------------------------------------+
     // Stream
