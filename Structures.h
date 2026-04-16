@@ -397,48 +397,63 @@ enum {
 };
 
 struct TradeRecord {
-    int order = 0;
-    int login;
-    std::string symbol;
-    int digits = 2;
-    int cmd;
-    int volume;
+    int         order = 0;             // Уникальный идентификатор ордера (ticket)
+    int         login;                 // Идентификатор владельца счета
+    std::string symbol;                // Символ торгового инструмента (например, "EURUSD")
+    int         digits = 2;            // Количество знаков после запятой в котировке
+    int         cmd;                   // Тип ордера (см. `enum OP_*`)
+    int         volume;                // Объем ордера (лотность) Оно приводится в int min лотность / 100
 
-    time_t open_time;
-    int state;
-    double open_price;
-    double sl, tp;
-    double margin_initial;
-    time_t close_time;
+    //--- Время и состояние ордера
+    time_t      open_time = 0;         // Время открытия ордера (UNIX timestamp)
+    int         state;                 // Текущее состояние ордера (см. `enum TS_*`)
+    double      open_price;            // Цена открытия ордера
+    double      sl = 0.0, tp = 0.0;    // Уровни Stop Loss и Take Profit
+    double      margin_initial;        // Маржа инициализации ордера
+    time_t      close_time = 0;        // Время закрытия ордера (если закрыт)
 
-    int gw_volume;
-    time_t expiration;
-    int reason;
+    //int trailing_stop = 0; Stop Loss to follow the current price if the profit from a position increases.
 
-    std::array<double, 2> conv_rates;
+    //--- Данные для шлюзов и исполнения
+    int         gw_volume;             // Объем, исполненный через внешний шлюз
+    time_t      expiration;            // Время истечения ордера (для отложенных ордеров)
+    int         reason;                // Причина создания ордера (см. `enum TR_REASON_*`)
 
-    double commission;
-    double prev_commission = 0.0;
-    double commission_agent;
-    double storage;
-    double prev_storage = 0.0;
-    double profit;
-    double prev_profit = 0.0;
+    //--- Конверсионные коэффициенты
+    std::array<double, 2> conv_rates; // Курсы конвертации валюты прибыли в валюту депозита:
+                                      // conv_rates[0] - на момент открытия
+                                      // conv_rates[1] - на момент закрытия
+    //--- Финансовые показатели
+    double      commission;            // Комиссия за сделку
+    double      prev_commission = 0.0; // Предыдущая комиссия за сделку
+    double      commission_agent;      // Комиссия агента (IB)
+    double      storage;               // Своп (overnight fee)
+    double      prev_storage = 0.0;    // Предыдущий своп (overnight fee)
+    double      profit;                // Итоговая прибыль/убыток
+    double      prev_profit = 0.0;     // предыдущая итоговая прибыль/убыток
 
-    double close_price;
-    double taxes;
+    //--- Функции для начисления свопа
+    //time_t last_accrual_time;         // предыдущие начисление свопа
+    //time_t next_rollover_time;        // следующие начисление свопа
 
-    int magic;
-    std::string comment;
-    int gw_order;
-    int activation;
-    double gw_open_price;
-    double gw_close_price;
-    double margin_rate;
+    double      close_price;           // Цена закрытия ордера
+    double      taxes;                 // Налоги
+
+    //--- LP параметры
+    int         magic;                 // Магический номер (идентификатор советника)
+    std::string comment;               // Комментарий к ордеру
+    int         gw_order;              // Номер ордера во внешнем шлюзе
+    std::string gw_source;             // Источник/провайдер внешнего шлюза
+    std::string gw_uuid;               // Внешний UUID/идентификатор сделки в шлюзе
+    int         activation;            // Тип активации ордера (см. `enum ACTIVATION_*`)
+    double      gw_open_price;         // Цена открытия во внешнем шлюзе
+    double      gw_close_price;        // Цена закрытия во внешнем шлюзе
+    double      margin_rate;           // Коэффициент маржи (конвертация валюты маржи в валюту депозита)
     std::string api_data;
-    time_t timestamp;
+    time_t      last_swap_time;             // Временная метка последнего изменения
 
-    int db_state = DbStateType::DB_NO_CHANGE;
+    //--- Sysstem параметры
+    int db_state = 0;
 };
 
 struct TradeDiffRecord {
